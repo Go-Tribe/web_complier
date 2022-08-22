@@ -6,11 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// setApiRoute 路由
 func setApiRoute(r *gin.Engine) {
-
-	hellov1 := r.Group("/api/v1/test")
+	complierV1 := r.Group("/api/v1")
 	{
-		hello := new(controller.HelloController)
-		hellov1.GET("/hello-world", hello.HelloWorld)
+		complier := new(controller.ComplierController)
+		complierV1.GET("/hello-world", complier.HelloWorld)
+		complierV1.POST("/run", complier.Run)
 	}
 }

@@ -1,0 +1,8 @@
+{
+    "image": "golang",
+    "file": "./go/main.go",
+    "cmd": "go run main.go",
+    "timeout": 5,
+    "memory": 104857600,
+    "cpuset": "0-1"
+}

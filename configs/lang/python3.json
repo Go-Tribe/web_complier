@@ -1,0 +1,8 @@
+{
+    "image": "python:3",
+    "file": "test.py",
+    "cmd": "python test.py",
+    "timeout": 5,
+    "memory": 104857600,
+    "cpuset": "0-1"
+}
