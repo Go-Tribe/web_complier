@@ -19,9 +19,9 @@ type runTpl struct {
 
 func Run(lang string) runTpl {
 	var tpl runTpl
-	lang = fmt.Sprintf("/Users/develop/Project/app/go/src/web_complier/configs/lang/%s.json", lang)
-	core.ZLogger.Error("lang:" + lang)
-	file, err := ioutil.ReadFile(lang)
+	currentDir, _ := os.Getwd()
+	path := fmt.Sprintf("%s/configs/lang/%s.json", currentDir, lang)
+	file, err := ioutil.ReadFile(path)
 	if err != nil {
 		core.ZLogger.Sugar().Error("Some error occured while reading file. Error: %s", err)
 	}
@@ -35,8 +35,8 @@ func Run(lang string) runTpl {
 }
 
 func LangExists(lang string) (bool, error) {
-	path := fmt.Sprintf("/Users/develop/Project/app/go/src/web_complier/configs/lang/%s.json", lang)
-	core.ZLogger.Error("path:" + path)
+	currentDir, _ := os.Getwd()
+	path := fmt.Sprintf("%s/configs/lang/%s.json", currentDir, lang)
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
