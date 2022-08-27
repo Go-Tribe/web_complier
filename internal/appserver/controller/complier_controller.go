@@ -35,16 +35,12 @@ func (h *ComplierController) Run(c *gin.Context) {
 
 	langexists, _ := docker.LangExists(execPost.Lang)
 	if !langexists {
-		response.Fail(c, code.CodeLenError, "暂不支持该语言")
+		response.Fail(c, code.CodeTypeError, "暂不支持该语言")
 		return
 	}
 
 	tpl := docker.Run(execPost.Lang)
 	output := docker.DockerRun(tpl.Image, execPost.Code, tpl.File, tpl.Cmd, tpl.Timeout, tpl.Memory)
 	// 返回数据
-	data := make(map[string]string)
-	data["stdout"] = output
-	data["stderr"] = ""
-
-	response.Success(c, data)
+	response.Success(c, &response.RunResponse{Stdout: output})
 }

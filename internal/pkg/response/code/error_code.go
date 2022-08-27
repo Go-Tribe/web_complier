@@ -14,6 +14,7 @@ const (
 	AuthorizationError = 10103
 	RBACError          = 10104
 	CodeLenError       = 2001
+	CodeTypeError      = 2002
 )
 
 func Text(code int) (str string) {
