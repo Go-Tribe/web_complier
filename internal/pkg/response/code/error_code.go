@@ -16,6 +16,7 @@ const (
 	CodeLenError       = 2001
 	CodeTypeError      = 2002
 	CodeShareError     = 2003
+	CodeGetInfoError   = 2004
 )
 
 func Text(code int) (str string) {

@@ -64,3 +64,16 @@ func (h *ComplierController) Share(c *gin.Context) {
 	}
 	response.Success(c, &response.ShareResponse{URL: gid})
 }
+
+func (h *ComplierController) GetCode(c *gin.Context) {
+	codeGet := validator.CodeGet()
+	if err := validator.CheckQueryParams(c, &codeGet); err != nil {
+		return
+	}
+	sharRes, err := service.ComplierService.FindOne(codeGet.GID)
+	if err != nil {
+		response.Fail(c, code.CodeGetInfoError, "获取信息失败")
+		return
+	}
+	response.Success(c, sharRes)
+}
