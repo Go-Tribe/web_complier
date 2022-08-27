@@ -5,6 +5,8 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+
+	"github.com/rs/xid"
 )
 
 // If 模拟简单的三元操作
@@ -36,4 +38,9 @@ func GetFileDirectoryToCaller(opts ...int) (directory string, ok bool) {
 		directory = path.Dir(filename)
 	}
 	return
+}
+
+// GUID 生成分布式字符串 ID，用于全局唯一 ID
+func GUID() string {
+	return xid.New().String()
 }

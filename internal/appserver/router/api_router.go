@@ -13,5 +13,6 @@ func setApiRoute(r *gin.Engine) {
 		complier := new(controller.ComplierController)
 		complierV1.GET("/hello-world", complier.HelloWorld)
 		complierV1.POST("/run", complier.Run)
+		complierV1.POST("/share", complier.Share)
 	}
 }

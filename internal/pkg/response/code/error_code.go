@@ -15,6 +15,7 @@ const (
 	RBACError          = 10104
 	CodeLenError       = 2001
 	CodeTypeError      = 2002
+	CodeShareError     = 2003
 )
 
 func Text(code int) (str string) {

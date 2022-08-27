@@ -7,12 +7,12 @@ server:
   host: 127.0.0.1
   port: 9999
 mysql:
-  enable: false
+  enable: true
   host: 127.0.0.1
   port: 3306
-  database: test
+  database: develop
   username: root
-  password: root1234
+  password: HhwpKnf!YC4e
   charset: utf8mb4
   table_prefix: ""
   max_idle_conns: 10
