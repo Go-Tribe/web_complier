@@ -6,5 +6,6 @@ import (
 )
 
 func CorsHandler() gin.HandlerFunc {
+
 	return cors.Default()
 }
