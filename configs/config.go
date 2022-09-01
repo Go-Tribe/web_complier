@@ -1,7 +1,9 @@
 package configs
 
 import (
+	"fmt"
 	"io/ioutil"
+	"os"
 	"path/filepath"
 	"web_complier/configs/application"
 	"web_complier/pkg"
@@ -35,8 +37,10 @@ func loadYaml() {
 	if !ok {
 		panic("Failed to load configuration: Failed to obtain the current file directory")
 	}
+	configName := fmt.Sprintf("/configs/config-%s.yaml", os.Getenv("DQENV"))
+	fmt.Println("config====:", configName)
 	// 生成 config.yaml 文件
-	yamlConfig := filepath.Dir(currentDirectory) + "/configs/config.yaml"
+	yamlConfig := filepath.Dir(currentDirectory) + configName
 	cfg, err := ioutil.ReadFile(yamlConfig)
 	if err != nil {
 		panic("Failed to read configuration file:" + err.Error())

@@ -16,5 +16,12 @@
 # vendor/
 .idea/
 .vscode/
+
+# 业务
 logs/*
 ./node_modules
+apiserver
+configs/config-dev.yaml
+configs/config-fat.yaml
+configs/config-uat.yaml
+configs/config-pro.yaml

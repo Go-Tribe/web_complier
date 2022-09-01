@@ -8,7 +8,7 @@ import (
 
 // setApiRoute 路由
 func setApiRoute(r *gin.Engine) {
-	complierV1 := r.Group("/api/v1")
+	complierV1 := r.Group("/complier/v1")
 	{
 		complier := new(controller.ComplierController)
 		complierV1.GET("/hello-world", complier.HelloWorld)
