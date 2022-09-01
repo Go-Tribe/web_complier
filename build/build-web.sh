@@ -36,6 +36,7 @@ funcCleanBuild() {
      cp -r $serverDir/node_modules $deployDir/web/
      cp -r $serverDir/web_complier.js $deployDir/web/
      cp -r $serverDir/ecosystem.config.js $deployDir/web/
+     cp -r $serverDir/env $deployDir/web/
 
      cd $deployDir/web
      npm install --registry=https://registry.npm.taobao.org
