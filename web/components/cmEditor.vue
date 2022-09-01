@@ -43,7 +43,7 @@
   import 'codemirror/theme/monokai.css';
   import 'codemirror/theme/midnight.css';
   import 'codemirror/addon/hint/show-hint.css';
-  import goTemplate from '~/code_template/template_go.js';
+  import Template from '~/code_template/template_go.js';
   import baseConfig from '~/web_complier.js';
   import {availableLangs as languages, langBeMap2Fe, langFeMap2Be} from './langNameMap';
   import Vue from 'vue';
@@ -53,7 +53,7 @@
   export default {
     name: 'CMEditor',
     data() {
-      const code = goTemplate;
+      const code = '';
       return {
         code: code,
         cmOptions: {
@@ -87,6 +87,7 @@
           code: '',
         },
         baseUrl: baseConfig.baseUrl,
+        codeTemplate: {},
       }
     },
     computed: {
@@ -119,20 +120,24 @@
     mounted() {
       this.codemirror.setSize('auto', 'calc(100vh - 80px)');
       const languageSelect = document.querySelector('#languageSelect');
-      this.curLang = langFeMap2Be[languageSelect.value] || languageSelect.value;
+      this.curLang = langBeMap2Fe[languageSelect.value] || languageSelect.value;
       // 是分享链接
       if(this.$route.query[shareParamName]) {
         this.getCodeByLink(this.$route.query[shareParamName]).then(res => {
-          this.codemirror.setOption('mode', langFeMap2Be[res.lang] || res.lang);
+          languageSelect.value = langBeMap2Fe[res.lang];
+          this.curLang = languageSelect.value;
+          this.codemirror.setOption('mode', langBeMap2Fe[res.lang] || res.lang);
           this.codemirror.setValue(res.code);
         });
       } else {
         // 正常进入
         this.codemirror.setOption('mode', languageSelect.value);
       }
+      this.code = Template[languageSelect.value];
       languageSelect.onchange = () => {
         this.codemirror.setOption('mode', languageSelect.value);
         this.curLang = languageSelect.value;
+        this.code = Template[languageSelect.value];
         console.log(languageSelect.value);
       }
     },
@@ -165,7 +170,7 @@
       submit() {
         this.isRunning = true;
         const paramsObj = {
-          lang: langBeMap2Fe[this.curLang] || this.curLang,
+          lang: langFeMap2Be[this.curLang] || this.curLang,
           code: this.code,
         }
         console.log(paramsObj);
@@ -193,7 +198,7 @@
       // 分享代码
       shareCode() {
         const paramsObj = {
-          lang: langBeMap2Fe[this.curLang] || this.curLang,
+          lang: langFeMap2Be[this.curLang] || this.curLang,
           code: this.code,
         }
         this.$http.post(

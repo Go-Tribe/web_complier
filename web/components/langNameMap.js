@@ -1,6 +1,6 @@
 export const availableLangs = [
   {lang: 'golang', value: 'go', name: 'Go 1.8', default: true},
-  {lang: 'python', value: 'python', name: 'Python', default: false},
+  {lang: 'python', value: 'python', name: 'Python3', default: false},
   {lang: 'rust', value: 'rust', name: 'Rust', default: false},
   // {lang: 'c', value: 'c', name: 'c', default: false},
   // {lang: 'c++', value: 'c++', name: 'c++', default: false},
@@ -9,8 +9,8 @@ export const availableLangs = [
 ]
 
 export const langBeMap2Fe = {
-  'go': 'golang',
-  'python': 'python',
+  'golang': 'go',
+  'python3': 'python',
   'rust': 'rust',
   'c': 'c',
   'c++': 'c++',
@@ -19,8 +19,8 @@ export const langBeMap2Fe = {
 }
 
 export const langFeMap2Be = {
-  'golang': 'go',
-  'python': 'python',
+  'go': 'golang',
+  'python': 'python3',
   'rust': 'rust',
   'c': 'c',
   'c++': 'c++',

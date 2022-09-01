@@ -7,6 +7,11 @@
 <script>
   export default {
     name: 'IndexPage',
+    head() {
+      return {
+        title: '在线代码运行',
+      }
+    },
     data() {
       return {
 
