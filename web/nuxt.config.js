@@ -1,5 +1,9 @@
 import path from 'path';
+import env from './env/index';
 export default {
+  env: {
+    ...env,
+  },
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
     title: 'web_complier_fe',
