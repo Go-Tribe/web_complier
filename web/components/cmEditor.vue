@@ -45,6 +45,7 @@
   import 'codemirror/addon/hint/show-hint.css';
   import goTemplate from '~/code_template/template_go.js';
   import baseConfig from '~/web_complier.js';
+  import {availableLangs as languages, langBeMap2Fe, langFeMap2Be} from './langNameMap';
   import Vue from 'vue';
 
   const shareParamName = 's';
@@ -77,22 +78,7 @@
           foldGutter: true,
         },
         timer: null,
-        languages: [
-          {lang: 'golang', value: 'go', name: 'Go 1.8', default: true},
-          // {lang: 'c', value: 'c', name: 'c', default: false},
-          // {lang: 'c++', value: 'c++', name: 'c++', default: false},
-          // {lang: 'java', value: 'java', name: 'Java', default: false},
-          // {lang: 'python', value: 'python', name: 'Python', default: false},
-          // {lang: 'javascript', value: 'javascript', name: 'Javascript', default: true},
-        ],
-        langMap: {
-          'go': 'golang',
-          'c': 'c',
-          'c++': 'c++',
-          'javascript': 'javascript',
-          'java': 'java',
-          'python': 'python'
-        },
+        languages,
         curLang: '',
         isRunning: false,
         result: '',
@@ -106,13 +92,15 @@
     computed: {
       codemirror() {
         return this.$refs.myCm.codemirror;
-      }
+      },
     },
     created() {
       if(process.browser) {
         // 语言
-        require('codemirror/mode/javascript/javascript.js');
+        // require('codemirror/mode/javascript/javascript.js');
         require('codemirror/mode/go/go.js');
+        require('codemirror/mode/python/python.js');
+        require('codemirror/mode/rust/rust.js');
         // 折叠
         require('codemirror/addon/fold/foldgutter.css');
         require('codemirror/addon/fold/foldcode');
@@ -122,7 +110,7 @@
         require('codemirror/addon/fold/indent-fold');
         // 代码提示
         require('codemirror/addon/hint/show-hint.js');
-        require('codemirror/addon/hint/javascript-hint.js');
+        // require('codemirror/addon/hint/javascript-hint.js');
         require('codemirror/addon/hint/show-hint.css');
         const VueCodemirror = require('vue-codemirror');
         Vue.use(VueCodemirror);
@@ -131,11 +119,11 @@
     mounted() {
       this.codemirror.setSize('auto', 'calc(100vh - 80px)');
       const languageSelect = document.querySelector('#languageSelect');
-      this.curLang = this.langMap[languageSelect.value] || languageSelect.value;
+      this.curLang = langFeMap2Be[languageSelect.value] || languageSelect.value;
       // 是分享链接
       if(this.$route.query[shareParamName]) {
         this.getCodeByLink(this.$route.query[shareParamName]).then(res => {
-          this.codemirror.setOption('mode', res.lang);
+          this.codemirror.setOption('mode', langFeMap2Be[res.lang] || res.lang);
           this.codemirror.setValue(res.code);
         });
       } else {
@@ -144,7 +132,7 @@
       }
       languageSelect.onchange = () => {
         this.codemirror.setOption('mode', languageSelect.value);
-        this.curLang = this.langMap[languageSelect.value] || languageSelect.value;
+        this.curLang = languageSelect.value;
         console.log(languageSelect.value);
       }
     },
@@ -177,12 +165,12 @@
       submit() {
         this.isRunning = true;
         const paramsObj = {
-          lang: this.curLang,
+          lang: langBeMap2Fe[this.curLang] || this.curLang,
           code: this.code,
         }
         console.log(paramsObj);
         this.$http.post(
-          `http://www.run.com/api/v1/run`,
+          `${process.env.API_URL}/complier/v1/run`,
           paramsObj,
           {headers: {'Content-Type': 'application/json'}}
         ).then(res => {
@@ -205,11 +193,11 @@
       // 分享代码
       shareCode() {
         const paramsObj = {
-          lang: this.curLang,
+          lang: langBeMap2Fe[this.curLang] || this.curLang,
           code: this.code,
         }
         this.$http.post(
-          `/api/v1/share`,
+          `${process.env.API_URL}/complier/v1/share`,
           paramsObj,
           {headers: {'Content-Type': 'application/json'}}
         ).then(res => {
@@ -222,7 +210,7 @@
         if(!shareLink) return;
         return new Promise((resolve, reject) => {
           this.$http.get(
-            `/api/v1/code`,
+            `${process.env.API_URL}/complier/v1/code`,
             {params: {gid: shareLink}}
           ).then(res => {
             console.log('获得分享内容', res);
