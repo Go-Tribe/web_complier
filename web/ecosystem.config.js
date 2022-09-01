@@ -1,3 +1,4 @@
+module.exports = {
 apps: [
     {
       name: 'complier-web',
@@ -18,3 +19,4 @@ apps: [
       log_date_format: 'YYYY-MM-DD HH:mm Z',
     },
   ]
+}
