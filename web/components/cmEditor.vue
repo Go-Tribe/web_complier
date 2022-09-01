@@ -278,7 +278,7 @@
               border-top-color: transparent;
               border-radius: 100%;
             }
-            .rotate {              
+            .rotate {
               animation: circle infinite 0.75s linear;
             }
 
