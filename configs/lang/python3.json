@@ -1,7 +1,8 @@
 {
-    "image": "python:3",
-    "file": "test.py",
-    "cmd": "python test.py",
+    "image": "python3",
+    "dir": "/tmp/",
+    "ext": "py",
+    "cmd": "python filename.py",
     "timeout": 5,
     "memory": 104857600,
     "cpuset": "0-1"

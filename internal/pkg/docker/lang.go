@@ -10,7 +10,8 @@ import (
 
 type runTpl struct {
 	Image   string `json:"image"`
-	File    string `json:"file"`
+	Dir     string `json:"dir"`
+	Ext     string `json:"ext"`
 	Cmd     string `json:"cmd"`
 	Timeout int64  `json:"timeout"`
 	Memory  int64  `json:"memory"`
@@ -29,8 +30,8 @@ func Run(lang string) runTpl {
 	if err != nil {
 		core.ZLogger.Sugar().Error("Error occured during unmarshaling. Error: %s", err.Error())
 	}
-	fmt.Println(tpl.Image)
-	fmt.Printf("tpl Struct: %#v\n", tpl)
+	//fmt.Println(tpl.Image)
+	//fmt.Printf("tpl Struct: %#v\n", tpl)
 	return tpl
 }
 
