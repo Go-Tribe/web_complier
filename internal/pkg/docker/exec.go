@@ -1,18 +1,18 @@
 package docker
 
 import (
-	"archive/tar"
-	"bytes"
 	"context"
 	"fmt"
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/filters"
 	"github.com/docker/docker/client"
-	"io"
 	"math/rand"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
+	c "web_complier/configs"
 	"web_complier/core"
 )
 
@@ -29,7 +29,6 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 
 	optionFilters := filters.NewArgs()
 	optionFilters.Add("name", image)
-	//optionFilters.Add("health", "starting")
 	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{
 		Size:    true,
 		All:     true,
@@ -37,9 +36,8 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 		Filters: optionFilters,
 		Limit:   1,
 	})
-	//fmt.Println("get container list:", containers)
-	/*fmt.Println("get container list:", len(containers), " cost:", time.Now().UnixMicro()-t0)
-	t0 = time.Now().UnixMicro()*/
+	//fmt.Println("get container list:", len(containers), " cost:", time.Now().UnixMicro()-t0)
+	/*t0 = time.Now().UnixMicro()*/
 	if err != nil {
 		core.ZLogger.Sugar().Error("docker list err:", err)
 	}
@@ -59,12 +57,15 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 		/*fmt.Println("range containers end", time.Now().UnixMicro()-t0)
 		t0 = time.Now().UnixMicro()*/
 	} else {
+		bindsString := fmt.Sprintf("%s:%s", c.Config.StaticBasePath, dest)
+		//fmt.Println("bindsString", bindsString)
 		resp, err := cli.ContainerCreate(ctx, &container.Config{
 			Image:        image,
 			AttachStderr: true,
 			AttachStdout: true,
 			Tty:          true,
 		}, &container.HostConfig{
+			Binds: []string{bindsString},
 			Resources: container.Resources{
 				Memory: memory, // Minimum memory limit allowed is 6MB.
 			},
@@ -81,97 +82,72 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 		//t0 = time.Now().UnixMicro()
 	}
 
-	var buf bytes.Buffer
-	tw := tar.NewWriter(&buf)
 	rand.Seed(time.Now().UnixMicro())
-	filename := fmt.Sprintf("%stest%d", dest, rand.Uint32())
-	fname := fmt.Sprintf("%s.%s", filename, ext)
+	filename := fmt.Sprintf("test_%d", rand.Uint32())
+	fname := fmt.Sprintf("%s/%s.%s", c.Config.StaticBasePath, filename, ext)
 	//fmt.Println(fname)
-	err = tw.WriteHeader(&tar.Header{
-		Name: fname,            // filename
-		Mode: 0777,             // permissions
-		Size: int64(len(code)), // filesize
-	})
-	if err != nil {
-		core.ZLogger.Sugar().Error("docker copy err:", err)
-	}
-	tw.Write([]byte(code))
-	tw.Close()
 
+	err = os.WriteFile(fname, []byte(code), 0777)
+	if err != nil {
+		core.ZLogger.Sugar().Error("write file err:", err)
+	}
 	/*fmt.Println("write buffer cost:", time.Now().UnixMicro()-t0)
 	t0 = time.Now().UnixMicro()*/
 
 	// use &buf as argument for content in CopyToContainer
-	cli.CopyToContainer(ctx, containerID, ".", &buf, types.CopyToContainerOptions{})
+	//cli.CopyToContainer(ctx, containerID, ".", &buf, types.CopyToContainerOptions{})
 
 	/*fmt.Println("CopyToContainer cost:", time.Now().UnixMicro()-t0)
 	t0 = time.Now().UnixMicro()*/
-	logFile := fmt.Sprintf("%s.log", filename)
-	cmd = strings.ReplaceAll(cmd, "filename", filename)
-	cmd = fmt.Sprintf("timeout %d %s > %s", langTimeout, cmd, logFile)
-	fmt.Println(cmd)
+	cmd = strings.ReplaceAll(cmd, "filename", dest+"/"+filename)
+	cmd = fmt.Sprintf("timeout %d %s > %s/%s.log", langTimeout, cmd, dest, filename)
+	//fmt.Println(cmd)
 	res, err := cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
 		Cmd: []string{"sh", "-c", cmd},
 	})
 	if err != nil {
-		removeFile([]string{fname}, cli, ctx, containerID)
+		removeFile(filename, ext)
 		core.ZLogger.Sugar().Error("docker exec create err:", err)
 	}
 	/*fmt.Println([]string{"sh", "-c", cmd})
 	fmt.Println(res, err)*/
 
-	c := make(chan int64)
+	chanC := make(chan int64)
 	var resSting string
 	go func() {
 		t1 := time.Now().UnixMicro()
 		if err := cli.ContainerExecStart(ctx, res.ID, types.ExecStartCheck{Detach: false, Tty: false}); err != nil {
-			removeFile([]string{fname, logFile}, cli, ctx, containerID)
+			removeFile(filename, ext)
 			core.ZLogger.Sugar().Errorf("ContainerExecStart %d err:%v:", res.ID, err)
 		}
-		for tryTimes := 5; tryTimes > 0; tryTimes-- {
-			fmt.Println("tryTimes:", tryTimes)
-			readIO, stat, err := cli.CopyFromContainer(ctx, containerID, logFile)
-			fmt.Println("read:", logFile, readIO, stat, err)
-			if err != nil {
-				core.ZLogger.Sugar().Info("CopyFromContainer err", err)
-			}
-			if stat.Size > 0 {
-				var resBytes []byte
-				tr := tar.NewReader(readIO)
 
-				for {
-					_, err := tr.Next()
-					if err == io.EOF {
-						break // End of archive
-					}
-					if err != nil {
-						core.ZLogger.Sugar().Info("CopyFromContainer err", err)
-					}
-					//fmt.Printf("Contents of %s:\n", hdr.Name)
-					//io.Copy(os.Stdout, tr)
-					resBytes, err = io.ReadAll(tr)
-					//fmt.Println(resBytes)
-					if err != nil {
-						core.ZLogger.Sugar().Info("CopyFromContainer err", err)
-					}
+		logFile := fmt.Sprintf("%s/%s.log", c.Config.StaticBasePath, filename)
+		for tryTimes := 200; tryTimes > 0; tryTimes-- {
+			time.Sleep(time.Duration(20) * time.Millisecond)
+			dir, err := os.Stat(logFile)
+			if err != nil {
+				if os.IsNotExist(err) {
+					continue
 				}
-				resSting = string(resBytes)
-				//fmt.Println(resSting)
+				core.ZLogger.Sugar().Error("open log file err:", err)
+			}
+			if dir.Size() > 0 {
+				content, err := os.ReadFile(logFile)
+				if err != nil {
+					core.ZLogger.Sugar().Info("read log file err", err)
+				}
+				resSting = string(content)
 				break
 			}
-			//time.Sleep(time.Duration(1) * time.Microsecond)
 		}
 		timeCost := time.Now().UnixMicro() - t1
-		c <- timeCost
+		chanC <- timeCost
 	}()
 
 	timeout := time.NewTimer(time.Duration(langTimeout) * time.Second)
 	timeoutFlag := false
 	select {
-	case timeCost := <-c:
-		fmt.Println("ContainerExecStart cost:", timeCost)
-		//core.ZLogger.Sugar().Info("ContainerExecStart %d cost:%v:", res.ID, timeCost)
-		//time.Sleep(time.Duration(150) * time.Millisecond)
+	case <-chanC:
 		break
 	case <-timeout.C:
 		timeoutFlag = true
@@ -179,8 +155,7 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 		//core.ZLogger.Sugar().Error("execute timeout")
 		return "execute timeout"
 	}
-
-	removeFile([]string{fname, logFile}, cli, ctx, containerID)
+	removeFile(filename, ext)
 	if timeoutFlag {
 		resSting = resSting + "\n execute timeout"
 	}
@@ -189,17 +164,16 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 	return resSting
 }
 
-func removeFile(files []string, cli *client.Client, ctx context.Context, containerID string) {
-	cmd := fmt.Sprintf("rm %s", strings.Join(files, " "))
-	//fmt.Println(cmd)
-	res, err := cli.ContainerExecCreate(ctx, containerID, types.ExecConfig{
-		Cmd: []string{"sh", "-c", cmd},
-	})
+func removeFile(filename string, ext string) {
+	pattern := fmt.Sprintf("%s/%s*", c.Config.StaticBasePath, filename)
+	files, err := filepath.Glob(pattern)
 	if err != nil {
-		fmt.Println(err)
-		core.ZLogger.Sugar().Info("docker exec cmd ", cmd, " err:", err)
+		core.ZLogger.Sugar().Info("err:", err)
 	}
-	if err := cli.ContainerExecStart(ctx, res.ID, types.ExecStartCheck{Detach: true, Tty: false}); err != nil {
-		core.ZLogger.Sugar().Info("ContainerExecStart %d err:%v:", res.ID, err)
+	for _, f := range files {
+		fmt.Println(f)
+		if err := os.Remove(f); err != nil {
+			core.ZLogger.Sugar().Info("err:", err)
+		}
 	}
 }

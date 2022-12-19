@@ -1,8 +1,8 @@
 {
     "image": "rust",
-    "dir": "/tmp/",
+    "dir": "/tmp",
     "ext": "rs",
-    "cmd": "rustc filename.rs -o test\nif test -f \"./filename\"; then\n./filename\nfi",
+    "cmd": "rustc filename.rs -o filename\nif test -f \".filename\"; then\n.filename\nfi",
     "timeout": 5,
     "memory": 104857600,
     "cpuset": "0-1"

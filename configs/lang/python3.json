@@ -1,6 +1,6 @@
 {
     "image": "python3",
-    "dir": "/tmp/",
+    "dir": "/tmp",
     "ext": "py",
     "cmd": "python filename.py",
     "timeout": 5,

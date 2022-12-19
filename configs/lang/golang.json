@@ -1,6 +1,6 @@
 {
     "image": "golang",
-    "dir": "/go/",
+    "dir": "/go",
     "ext": "go",
     "cmd": "go run filename.go",
     "timeout": 5,

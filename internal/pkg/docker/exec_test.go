@@ -21,22 +21,22 @@ func TestDockerRun(t *testing.T) {
 	}{
 		{
 			"python3",
-			args{lang: "python3", dir: "/tmp/", ext: "py", cmd: "python3 filename.py", langTimeout: 5, memory: 104857600, code: "def print_welcome(name):\n    print(\"Welcome\", name)\n \nprint_welcome(\"gotribe\")"},
+			args{lang: "python3", dir: "/tmp", ext: "py", cmd: "python3 filename.py", langTimeout: 5, memory: 104857600, code: "def print_welcome(name):\n    print(\"Welcome\", name)\n \nprint_welcome(\"gotribe\")"},
 			"Welcome gotribe\n",
 		},
 		{
 			"rust",
-			args{lang: "rust", dir: "/tmp/", ext: "rs", cmd: "rustc filename.rs -o test\nif test -f \".filename\"; then\n.filename\nfi", langTimeout: 5, memory: 104857600, code: "fn main() {\n    println!(\"Hello, gotribe!\");}"},
-			"\x01\x00\x00\x00\x00\x00\x00\x10Hello, gotribe!\n",
+			args{lang: "rust", dir: "/tmp", ext: "rs", cmd: "rustc filename.rs -o filename\nif test -f \".filename\"; then\n.filename\nfi", langTimeout: 5, memory: 104857600, code: "fn main() {\n    println!(\"Hello, gotribe!\");}"},
+			"Hello, gotribe!\n",
 		},
 		{
 			"python3-2",
-			args{lang: "python3", dir: "/tmp/", ext: "py", cmd: "python3 filename.py", langTimeout: 1, memory: 104857600, code: "while True:\n   print(\"111\")\n\n\n# fn main() {\n#     println!(\"Hello, world!\");\n# }"},
+			args{lang: "python3", dir: "/tmp", ext: "py", cmd: "python3 filename.py", langTimeout: 1, memory: 104857600, code: "while True:\n   print(\"111\")\n\n\n# fn main() {\n#     println!(\"Hello, world!\");\n# }"},
 			"execute timeout",
 		},
 		{
 			"golang",
-			args{lang: "golang", dir: "/go/", ext: "go", cmd: "go run filename.go", langTimeout: 5, memory: 104857600, code: "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc main() {\n  \n\tfor i := 1; i < 2; i++ {\n\t\tfmt.Print(i)\n\t\ttime.Sleep(time.Duration(0*time.Second))\n\t}\n}"},
+			args{lang: "golang", dir: "/go", ext: "go", cmd: "go run filename.go", langTimeout: 5, memory: 104857600, code: "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc main() {\n  \n\tfor i := 1; i < 2; i++ {\n\t\tfmt.Print(i)\n\t\ttime.Sleep(time.Duration(0*time.Second))\n\t}\n}"},
 			"1",
 		},
 	}
