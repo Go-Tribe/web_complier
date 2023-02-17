@@ -39,6 +39,11 @@ func TestDockerRun(t *testing.T) {
 			args{lang: "golang", dir: "/go", ext: "go", cmd: "go run filename.go", langTimeout: 5, memory: 104857600, code: "package main\n\nimport (\n\t\"fmt\"\n\t\"time\"\n)\n\nfunc main() {\n  \n\tfor i := 1; i < 2; i++ {\n\t\tfmt.Print(i)\n\t\ttime.Sleep(time.Duration(0*time.Second))\n\t}\n}"},
 			"1",
 		},
+		{
+			"php",
+			args{lang: "php", dir: "/tmp", ext: "php", cmd: "php filename.php", langTimeout: 5, memory: 104857600, code: "<?php echo 'hello world';"},
+			"hello world",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

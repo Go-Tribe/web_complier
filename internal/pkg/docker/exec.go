@@ -122,7 +122,7 @@ func DockerRun(image string, code string, dest string, cmd string, langTimeout i
 		}
 
 		logFile := fmt.Sprintf("%s/%s.log", c.Config.StaticBasePath, filename)
-		for tryTimes := 200; tryTimes > 0; tryTimes-- {
+		for tryTimes := langTimeout * 100; tryTimes > 0; tryTimes-- {
 			time.Sleep(time.Duration(20) * time.Millisecond)
 			dir, err := os.Stat(logFile)
 			if err != nil {
@@ -171,7 +171,7 @@ func removeFile(filename string, ext string) {
 		core.ZLogger.Sugar().Info("err:", err)
 	}
 	for _, f := range files {
-		fmt.Println(f)
+		//fmt.Println(f)
 		if err := os.Remove(f); err != nil {
 			core.ZLogger.Sugar().Info("err:", err)
 		}
