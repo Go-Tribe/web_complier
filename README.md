@@ -3,12 +3,13 @@
 
 ## 介绍
 - 在线编译器
-- 实现语言： golang + docker
+- 实现语言： golang + docker + Docker Engine API
 
 
-使用前需先安装 docker，并事先下载运行代码的镜像
+使用前需先安装 docker，事先下载运行代码的镜像并重命名，名字与配置文件相对应。
+启动容器时，指定映射，与配置文件相对应
 ```
-docker pull python:3
+docker pull python:3 && docker tag python:3 python3
 docker pull rust
 docker pull golang
 ```
