@@ -41,7 +41,7 @@ func (h *ComplierController) Run(c *gin.Context) {
 	}
 
 	tpl := docker.Run(execPost.Lang)
-	output := docker.DockerRun(tpl.Image, execPost.Code, tpl.File, tpl.Cmd, tpl.Timeout, tpl.Memory)
+	output := docker.DockerRun(tpl.Image, execPost.Code, tpl.Dir, tpl.Cmd, tpl.Timeout, tpl.Memory, tpl.Ext)
 	// 返回数据
 	response.Success(c, &response.RunResponse{Stdout: output})
 }

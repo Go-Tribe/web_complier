@@ -1,0 +1,9 @@
+{
+  "image": "php",
+  "dir": "/tmp",
+  "ext": "php",
+  "cmd": "php filename.php",
+  "timeout": 5,
+  "memory": 104857600,
+  "cpuset": "0-1"
+}
